@@ -1,79 +1,74 @@
+#!/usr/bin/env python3
+# -*- coding:UTF-8 -*-
+# File Name: test.py
+# Author: Shechucheng
+# Created Time: 2020-06-07 00:15:54
+
+
 import os
+import asyncio
 from aiohttp import web
+from locale import getdefaultlocale
 
 
 requests = []
-router = web.RouteTableDef()
-form = '''
-<form action="/cmd" method="post" accept-charset="utf-8"
-      enctype="application/x-www-form-urlencoded">
-    <div>
-    <label for="cmd-shutdown-set">计划关机</label>
-    <input id="cmd-shutdown-set" name="cmd" type="radio" value="计划关机" autofocus/>
-    </div>
-    <div>
-    <label for="cmd-shutdown-cancel">取消关机</label>
-    <input id="cmd-shutdown-cancel" name="cmd" type="radio" value="取消关机" autofocus/>
-    </div>
-    <div>
-    <label for=cmd-ap-set"">开启热点</label>
-    <input id="cmd-ap-set" name="cmd" type="radio" value="开启热点" autofocus/>
-    </div>
-    <div>
-    <label for="cmd-ap-cancel">关闭热点</label>
-    <input id="cmd-ap-cancel" name="cmd" type="radio" value="关闭热点" autofocus/>
-    </div>
-    <div>
-    <label for="password">密码验证</label>
-    <input id="password" name="password" type="password" value=""/>
-    </div>
-    <input type="submit" value="运行"/>
-</form>
-'''
+encoding = 'gbk' if 'cp936' in getdefaultlocale() else 'utf-8'
+
 
 cmd = {
-    "计划关机": "shutdown -s -t 60",
+    "计划关机": "shutdown 1",  # 分钟
+    "取消关机": "shutdown -c",
+    "立即关机": "shutdown 0",
+    "重新启动": "shutdown -r",
+    "文件管理": ""
+        } if os.name == 'posix' else {
+    "计划关机": "shutdown -s -t 60", # 秒
     "取消关机": "shutdown -a",
-    "开启热点": "runas /user:administrator netsh wlan start hostednetwork",
-    "关闭热点": "netsh wlan stop hostednetwork"
+    "立即关机": "shutdown -s -t 0",
+    "文件管理": ""
 }
 
 
-@router.get('/')
-async def hello(request):
-    requests.append(request)
-    r = web.Response(body='<h1>Hello, 小仙女, 我是平平无奇的<a href="/cmd">电脑管家</a></h1>')
-    r.content_type = "text/html;charset=utf-8"
-    return r
-
-
-@router.get('/cmd')
-async def command(request):
-    requests.append(request)
-    r = web.Response(body=form)
-    r.content_type = "text/html;charset=utf-8"
-    return r
-
-
-@router.post('/cmd')
 async def command(request):
     data = await request.post()
     requests.append(data)
     cmd_name = data.get('cmd')
     cmd_text = cmd.get(cmd_name)
     if cmd_text:
-        r = os.system(cmd_text)
-        r = cmd_name + '：' + ('成功' if r == 0 else "失败")
+        try:
+            p = await asyncio.create_subprocess_shell(cmd_text, 
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.STDOUT)
+            out, err = await p.communicate()
+            r = out.decode(encoding=encoding)
+            status_code = p.returncode
+        except:
+            status_code = os.system(cmd_text)
+            r = cmd_text
+        status = True if status_code == 0 else False
     else:
-        r = "命令不存在"
-    return web.Response(text=r)
+        r = '命令不存在'
+        status = None
+
+    return web.json_response({"status": status, "info": r})
+
+
+async def index(request):
+    raise web.HTTPFound('/index.html')
+
 
 
 def main():
+    if os.name != 'posix':
+        loop = asyncio.ProactorEventLoop()
+        asyncio.set_event_loop(loop)
     app = web.Application()
-    app.add_routes(router)
-    web.run_app(app)
+    app.router.add_get('/', index)
+    app.router.add_static('/', 'static')
+    app.router.add_post('/cmd', command)
+    web.run_app(app, port=8080)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
+     

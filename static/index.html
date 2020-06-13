@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="python, 脚本, 关机, 工具， 小仙女，" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="refresh" content="1500" />
+    <!-- 引入 jQuery Mobile 样式 -->
+    <link rel="stylesheet" href="/css/jquery.mobile-1.4.5.min.css">
+    <!-- 引入 主题 样式 -->
+    <link rel="stylesheet" href="/css/theme-classic.css">
+    <!-- 引入 自定义 样式 -->
+	<link rel="stylesheet" href="/css/custom.css">
+    <!-- 引入 jQuery 库 --> 
+    <script src="/js/jquery.min.js"></script>
+    <!-- 引入 jQuery Mobile 库 -->
+    <script src="/js/jquery.mobile-1.4.5.min.js"></script>
+    <title>小仙女的电脑助手</title>
+</head>
+<body>
+    <div data-role="page" class="ui-page ui-page-active ui-page-theme-e">
+        <div data-role="header" data-role="header" data-position="fixed">
+            <h2>
+                小仙女ღ专属
+			</h2>
+        </div>
+        <div data-role="main" class="ui-content">
+            <h1>Hello,小仙女，我是平平无奇的电脑管家</h1>
+            <div data-role="main" class="ui-content">
+                <button class="ui-btn ui-corner-all ui-icon-power ui-btn-icon-right"
+                        id="shutdownNow">立即关机</button>
+                <button class="ui-btn ui-corner-all ui-icon-clock ui-btn-icon-right"
+                        id="shutdownSet">计划关机</button>
+                <button class="ui-btn ui-corner-all ui-icon-back ui-btn-icon-right"
+                        id="shutdownCancel" >取消关机</button>
+                <button class="ui-btn ui-corner-all ui-icon-bars ui-btn-icon-right"
+                        id="fileManage" >文件管理</button>
+            </div>
+
+        </div>
+		<div data-role="footer" data-position="fixed">
+			<div data-role="navbar" class="ui-navbar" role="navigation">
+				<ul class="ui-grid-b">
+					<li><a href="#" data-icon="star"><font style="vertical-align: inherit;">帮助</font></a></li>
+					<li><a href="#" data-icon="home" class="ui-btn-active"><font style="vertical-align: inherit;">主页</font></a></li>
+					<li><a href="#" data-icon="gear"><font style="vertical-align: inherit;">设置</font></a></li>
+				</ul>
+			</div>
+		</div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('#shutdownNow').click(function(){
+                r = confirm('小仙女，此操作会立即关闭计算机，是否确认关机？');
+                if (r) {
+		            $.post('/cmd', {'cmd': '立即关机'} ,function(data, status){
+                        console.log(data, status)
+                    })
+                } else {
+                    console.log('小仙女取消了此次立即关机的操作')
+                }
+            });
+
+            $('#shutdownSet').click(function(){
+		        $.post('/cmd', {'cmd': '计划关机'}, function(data, status){
+                    console.log(data, status)
+                });
+            });
+
+            $('#shutdownCancel').click(function(){
+		        $.post('/cmd', {'cmd': '取消关机'}, function(data, status){
+                    console.log(data, status)
+                });
+            });
+
+            $('#fileManage').click(function(){
+		        $.post('/cmd', {'cmd': '文件管理'}, function(data, status){
+                    console.log(data, status)
+                });
+            });
+
+            
+	    
+	    
+        });
+    </script>
+    
+</body>
+</html>
