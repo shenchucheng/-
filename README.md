@@ -14,10 +14,10 @@
 
 ## 预览
 - 主页：
-![主页预览](./static/image/home_page_preview_yellow.png)
+- ![主页预览](./static/image/home_page_preview_yellow.png)
 
 - 小可爱要求的粉红主题(被吐槽是橘红)：
-![粉色主题](./static/image/home-page-preview_pink.png)
+- ![粉色主题](./static/image/home-page-preview_pink.png)
 
 ## **实现**
 - **python3**
