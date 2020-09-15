@@ -18,14 +18,14 @@
     <title>小仙女的电脑助手</title>
 </head>
 <body>
-    <div data-role="page" class="ui-page ui-page-active ui-page-theme-e">
-        <div data-role="header" data-role="header" data-position="fixed">
-            <h2>
+    <div data-role="page" class="ui-page ui-page-active">
+        <div data-role="header" data-position="fixed">
+            <h2 id="headline">
                 小仙女ღ专属
 			</h2>
         </div>
-        <div data-role="main" class="ui-content">
-            <h1>Hello,小仙女，我是平平无奇的电脑管家</h1>
+        <div id="home-content" data-role="main" class="ui-content" data-position="center">
+            <h1 style="text-align: center;">平平无奇电脑管家</h1>
             <div data-role="main" class="ui-content">
                 <button class="ui-btn ui-corner-all ui-icon-power ui-btn-icon-right"
                         id="shutdownNow">立即关机</button>
@@ -36,53 +36,167 @@
                 <button class="ui-btn ui-corner-all ui-icon-bars ui-btn-icon-right"
                         id="fileManage" >文件管理</button>
             </div>
-
         </div>
+        <div id="help-content" data-role="main" class="ui-content">
+            <h1>帮助信息</h1>
+            <p>亲爱的<span id="pnickname">小仙女：</span> <br> 以下是小助手使用指南</p>
+            <ol>
+                <li>在“主页”页面下，可以完成电脑控制操作。</li><br>
+                <li>在“设置”页面下，可以进行主题和个性化设置。</li><br>
+                <li>在“帮助”页面下，可以随时查看本页帮助信息。</li><br>
+            </ol>
+        </div>
+        <div id="setting-content" data-role="main" class="ui-content">
+            <h1>设置</h1>
+            <!-- <div data-role="controlgroup" data-type="horizontal">                
+                <fieldset data-role="controlgroup" data-type="horizontal">
+                    <legend><h3>主题设置：</h3></legend>
+                    <input type="radio" name="page-content-theme" id="theme-a" value="a" data-theme="a" checked="checked">
+                    <label for="theme-a" data-theme="a">黑</label>
+                    <input type="radio" name="page-content-theme" id="theme-b" value="b" data-theme="b">
+                    <label for="theme-b">蓝</label>
+                    <input type="radio" name="page-content-theme" id="theme-c" value="c" data-theme="c">
+                    <label for="theme-c">白</label>
+                    <input type="radio" name="page-content-theme" id="theme-d" value="d" data-theme="d">
+                    <label for="theme-d">黄</label>
+                    <input type="radio" name="page-content-theme" id="theme-e" value="e" data-theme="e">
+                    <label for="theme-e">Two</label>
+                </fieldset>
+            </div> -->
+            <h3>主题设置：</h3>
+            <div data-role="controlgroup" data-type="horizontal">                
+                <button id="theme-a" data-inline="true" data-theme="a" data-role="button" >a</button>
+                <button id="theme-b" data-inline="true" data-theme="b" data-role="button">b</button>
+                <button id="theme-c" data-inline="true" data-theme="c" data-role="button">c</button>
+                <button id="theme-d" data-inline="true" data-theme="d" data-role="button">d</button>
+                <button id="theme-e" data-inline="true" data-theme="e" data-role="button">e</button>
+                </div>            
+            <h3>个性化设置：</h3>
+            <form>
+                <div class="ui-field-contain">
+                    <label for="nickname">我的昵称：</label>
+                    <input type="text" name="nickname" id="nickname" placeholder="小仙女">       
+                    <label for="pagename">页面名称：</label>
+                    <input type="text" name="pagename" id="pagename" placeholder="小仙女ღ专属">
+                </div>
+            </form>
+        </div>
+
 		<div data-role="footer" data-position="fixed">
 			<div data-role="navbar" class="ui-navbar" role="navigation">
 				<ul class="ui-grid-b">
-					<li><a href="#" data-icon="star"><font style="vertical-align: inherit;">帮助</font></a></li>
-					<li><a href="#" data-icon="home" class="ui-btn-active"><font style="vertical-align: inherit;">主页</font></a></li>
-					<li><a href="#" data-icon="gear"><font style="vertical-align: inherit;">设置</font></a></li>
+					<li><a id="help" href="#" data-icon="star"><font style="vertical-align: inherit;">帮助</font></a></li>
+					<li><a id="home" href="#" data-icon="home" class="ui-btn-active"><font style="vertical-align: inherit;">主页</font></a></li>
+					<li><a id="setting" href="#" data-icon="gear"><font style="vertical-align: inherit;">设置</font></a></li>
 				</ul>
 			</div>
-		</div>
+        </div>
     </div>
+
     <script>
         $(document).ready(function(){
+            function loadtitle() {
+                document.title = localStorage.title;
+                $('#headline').text(localStorage.title)
+            };
+            function loadnickname() {
+                $('#pnickname').text(localStorage.nickname)
+            };
+            function pagenamechange() {
+                if (this.value){
+                    localStorage.title = this.value;
+                } else {
+                    localStorage.title = this.placeholder;
+                };
+                loadtitle()
+            };
+            function nicknamechange() {
+                if (this.value){
+                    localStorage.nickname = this.value
+                } else {
+                    localStorage.nickname = this.placeholder;
+                };
+                loadnickname()
+            };
+            function cmdcallback(data, status) {
+                if (status != 'success'){
+                    alert('请求失败，请稍后再试')
+                } else {
+                    if (data.status == false){
+                        alert('操作失败\n'+'错误信息：' + data.info)
+                    }
+                }
+            }
+            function changeMainContent(id) {
+                for (let i=0, lis=['help', 'home', 'setting']; i < 3; i++){
+                    let li = lis[i];
+                    if (li == id){
+                        $('#'+li+'-content').show()
+                    } else {
+                        $('#'+li+'-content').hide()
+                    }
+                }
+            };
+            $('#pagename').change(pagenamechange);
+            $('#nickname').change(nicknamechange);
+            if (localStorage.nickname){
+                $('#nickname').val(localStorage.nickname);
+                loadnickname();
+            };
+            if (localStorage.title){
+                $('#pagename').val(localStorage.title);
+                loadtitle();
+            };
+            if (localStorage.theme && localStorage.theme != 'a'){
+                let page = $('.ui-page');
+                page.addClass('ui-page-theme-' + localStorage.theme);
+                page.removeClass('ui-page-theme-a');
+            };
+            function changePageTheme(type) {
+                let theme_old = 'ui-page-theme-' + localStorage.theme,
+                    theme = 'ui-page-theme-' + type,
+                    page = $('.ui-page');
+                page.addClass(theme);
+                page.removeClass(theme_old);
+                localStorage.theme = type;
+            };
+            for (let i = 0; i < 5; i++){
+                $('#theme-'+'abcde'[i]).click(function(){
+                    changePageTheme('abcde'[i])
+                })
+            };
+            $('#help-content').hide();
+            $('#setting-content').hide();
+            $('#home').click(function(){
+                changeMainContent('home')
+            });
+            $('#help').click(function(){
+                changeMainContent('help')
+            });
+            $('#setting').click(function(){
+                changeMainContent('setting')
+            });
             $('#shutdownNow').click(function(){
                 r = confirm('小仙女，此操作会立即关闭计算机，是否确认关机？');
                 if (r) {
-		            $.post('/cmd', {'cmd': '立即关机'} ,function(data, status){
-                        console.log(data, status)
-                    })
+		            $.post('/cmd', {'cmd': '立即关机'} , cmdcallback)
                 } else {
                     console.log('小仙女取消了此次立即关机的操作')
-                }
+                };
             });
 
             $('#shutdownSet').click(function(){
-		        $.post('/cmd', {'cmd': '计划关机'}, function(data, status){
-                    console.log(data, status)
-                });
+		        $.post('/cmd', {'cmd': '计划关机'}, cmdcallback);
             });
 
             $('#shutdownCancel').click(function(){
-		        $.post('/cmd', {'cmd': '取消关机'}, function(data, status){
-                    console.log(data, status)
-                });
+		        $.post('/cmd', {'cmd': '取消关机'}, cmdcallback);
             });
 
             $('#fileManage').click(function(){
-		        $.post('/cmd', {'cmd': '文件管理'}, function(data, status){
-                    console.log(data, status)
-                });
+		        $.post('/cmd', {'cmd': '文件管理'}, cmdcallback);
             });
-
-            
-	    
-	    
-        });
+        })
     </script>
     
 </body>
